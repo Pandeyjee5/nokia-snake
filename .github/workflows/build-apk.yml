@@ -1,15 +1,18 @@
 name: Build Snake APK
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ "main", "master" ]
+    branches:
+      - main
+      - master
+  workflow_dispatch:
 
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout project
         uses: actions/checkout@v4
 
       - name: Set up Java 17
@@ -21,18 +24,16 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK 35
+      - name: Install Android SDK packages
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-35"
+          sdkmanager "build-tools;35.0.0"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.7'
 
-      - name: Build debug APK
-        working-directory: .
+      - name: Build APK
         run: gradle --no-daemon :app:assembleDebug
 
       - name: Upload APK
